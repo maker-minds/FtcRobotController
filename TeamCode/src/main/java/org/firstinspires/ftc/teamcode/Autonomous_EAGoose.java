@@ -55,21 +55,6 @@ public class Autonomous_EAGoose extends LinearOpMode {
         waitForStart();
 
         encoderDrive(DRIVE_SPEED, -20, -20, -20, -20, 4);
-        outtake.setPower(1);
-        revolver.mode = 1;
-        pusher.setPosition(0.25);
-        sleep(300);
-        pusher.setPosition(0.5);
-        revolver.index = 1;
-        pusher.setPosition(0.25);
-        sleep(300);
-        pusher.setPosition(0.5);
-        revolver.index = 2;
-        pusher.setPosition(0.25);
-        sleep(300);
-        pusher.setPosition(0.5);
-        outtake.setPower(0);
-        encoderDrive(DRIVE_SPEED, -15, 15, 15, -15, 4);
     }
 
 
