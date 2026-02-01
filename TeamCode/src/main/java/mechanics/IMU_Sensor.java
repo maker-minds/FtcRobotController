@@ -15,10 +15,10 @@ public class IMU_Sensor {
     }
 
     public void init(HardwareMap hardwareMap) {
-        imu = hardwareMap.get(IMU.class, "IMU");
+        imu = hardwareMap.get(IMU.class, "imu");
 
         RevHubOrientationOnRobot imuOrientation = new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD, RevHubOrientationOnRobot.UsbFacingDirection.LEFT);
+                RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT);
 
         imu.initialize(new IMU.Parameters(imuOrientation));
     }

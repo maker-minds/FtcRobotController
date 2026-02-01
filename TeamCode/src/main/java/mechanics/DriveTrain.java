@@ -1,6 +1,7 @@
 package mechanics;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -38,7 +39,7 @@ public class DriveTrain {
             leftback.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rightfront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rightback.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }else if(Mode.equals("RUN_USING_ENCODER")){
+        }else if(Mode.equals("RUN_USING_ENCODER")) {
 
             leftfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             leftback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -49,6 +50,11 @@ public class DriveTrain {
             leftback.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightfront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightback.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }else if(Mode.equals("ZERO_POWER_BEHAVIOR_BRAKE")) {
+            leftfront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            leftback.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            rightfront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            rightback.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }else{
             telemetry.addData("error: ",Mode);
         }
@@ -62,21 +68,5 @@ public class DriveTrain {
     public void setPowerright(double Power){
         rightfront.setPower(Power);
         rightback.setPower(Power);
-    }
-
-    public void setLefttargetPosition(int targetPosition) {
-
-        leftfront.setTargetPosition(targetPosition);
-        leftback.setTargetPosition(targetPosition);
-        leftfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftback.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    }
-
-    public void setRighttargetPosition(int targetPosition) {
-
-        rightfront.setTargetPosition(targetPosition);
-        rightback.setTargetPosition(targetPosition);
-        rightfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightback.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 }

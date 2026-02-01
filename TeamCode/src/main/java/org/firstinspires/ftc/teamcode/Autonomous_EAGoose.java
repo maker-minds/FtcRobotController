@@ -2,13 +2,17 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import mechanics.DriveTrain;
 import mechanics.IMU_Sensor;
 import mechanics.PID_Controller;
+import mechanics.Revolver;
 
-@Autonomous(name = "Autonomous_EAGoose")
+
+@Autonomous(name = "Autonomous_EAGoose", group = "autonomous")
 public class Autonomous_EAGoose extends LinearOpMode {
 
     final double COUNTS_PER_MOTOR_REV = 1120;    // eg: TETRIX Motor Encoder
@@ -19,26 +23,53 @@ public class Autonomous_EAGoose extends LinearOpMode {
     final double DRIVE_SPEED = 0.9;
     final double TURN_SPEED = 0.7;
 
-    double orientation = 0;
+    final double orientation = 0;
+    int BackLeftTarget, FrontLeftTarget, BackRightTarget, FrontRightTarget;
+
 
     private final DriveTrain DriveTrain = new DriveTrain(telemetry);
     PID_Controller pid = new PID_Controller();
     IMU_Sensor imu = new IMU_Sensor();
+    Revolver revolver = new Revolver();
+    DcMotor outtake;
+    DcMotor intake;
+    Servo pusher;
 
     private final ElapsedTime runtime = new ElapsedTime();
-
 
     @Override
     public void runOpMode() {
 
         DriveTrain.init(hardwareMap);
         DriveTrain.setMode("RUN_USING_ENCODER");
-
+        revolver.init(hardwareMap);
+        outtake = hardwareMap.get(DcMotor.class, "Outtake");
+        intake = hardwareMap.get(DcMotor.class, "Intake");
+        pusher = hardwareMap.get(Servo.class, "pusher");
         imu.init(hardwareMap);
 
+        revolver.mode = 0;
+        revolver.index = 0;
+        revolver.gotoPosition();
+        pusher.setPosition(0.5);
         waitForStart();
 
-        encoderDrive(DRIVE_SPEED, 10, 10, 4);
+        encoderDrive(DRIVE_SPEED, -20, -20, -20, -20, 4);
+        outtake.setPower(1);
+        revolver.mode = 1;
+        pusher.setPosition(0.25);
+        sleep(300);
+        pusher.setPosition(0.5);
+        revolver.index = 1;
+        pusher.setPosition(0.25);
+        sleep(300);
+        pusher.setPosition(0.5);
+        revolver.index = 2;
+        pusher.setPosition(0.25);
+        sleep(300);
+        pusher.setPosition(0.5);
+        outtake.setPower(0);
+        encoderDrive(DRIVE_SPEED, -15, 15, 15, -15, 4);
     }
 
 
@@ -50,49 +81,55 @@ public class Autonomous_EAGoose extends LinearOpMode {
         DriveTrain.setPowerleft(power);
     }
 
-    public void encoderDrive(double speed, double leftInches, double rightInches, double timeoutS) {
+    public void encoderDrive(double speed, double backleftInches, double frontleftinches, double backrightInches, double frontrightinches, double timeout) {
 
-        int newLeftTarget;
-        int newRightTarget;
-
-        int leftCurrentPosition;
-        int rightCurrentPosition;
-
-        leftCurrentPosition = (DriveTrain.leftback.getCurrentPosition() + DriveTrain.leftfront.getCurrentPosition()) / 2;
-        rightCurrentPosition = (DriveTrain.rightback.getCurrentPosition() + DriveTrain.rightfront.getCurrentPosition()) / 2;
+        calculateTargetPosition(backleftInches, frontleftinches, backrightInches, frontrightinches);
 
         if (opModeIsActive()) {
 
-            newLeftTarget = leftCurrentPosition + (int) (leftInches * COUNTS_PER_INCH);
-            newRightTarget = rightCurrentPosition + (int) (rightInches * COUNTS_PER_INCH);
-            DriveTrain.setLefttargetPosition(newLeftTarget);
-            DriveTrain.setRighttargetPosition(newRightTarget);
+            DriveTrain.setPowerleft(Math.abs(speed));
+            DriveTrain.setPowerright(Math.abs(speed));
 
-            runtime.reset();
-            DriveTrain.setPowerleft(Math.abs(speed) / 2);
-            DriveTrain.setPowerright(Math.abs(speed) / 2);
-
-            while (opModeIsActive() && (runtime.seconds() < timeoutS) &&
+            while (opModeIsActive() && (runtime.seconds() < timeout) &&
                     (DriveTrain.leftfront.isBusy() || DriveTrain.leftback.isBusy() || DriveTrain.rightfront.isBusy() || DriveTrain.rightback.isBusy())) {
-
-                if (leftCurrentPosition - DriveTrain.leftback.getCurrentPosition() < 100) {
-                    DriveTrain.setPowerleft(Math.abs(speed) + 0.01);
-                    DriveTrain.setPowerright(Math.abs(speed) + 0.01);
-                } else if (newLeftTarget - DriveTrain.leftback.getCurrentPosition() < 100) {
-                    DriveTrain.setPowerleft(Math.abs(speed) - 0.01);
-                    DriveTrain.setPowerright(Math.abs(speed) - 0.01);
-                }
-                telemetry.addData("Running to", " %7d :%7d", newLeftTarget, newRightTarget);
-                telemetry.addData("Currently at", " at %7d :%7d",
-                        DriveTrain.leftback.getCurrentPosition(), DriveTrain.rightback.getCurrentPosition());
                 telemetry.update();
             }
 
             DriveTrain.setPowerleft(0);
             DriveTrain.setPowerright(0);
 
-
-            sleep(250);
+            sleep(150);
         }
+    }
+
+    public void directionDrive(double speed, double direction, double distance, double timeout) {
+        int frontleftinches, backleftinches, frontrightinches, backrightinches;
+        int cosin_add = (int) (distance * (Math.cos(direction) + Math.sin(direction)));
+        int cosin_sub = (int) (distance * (Math.cos(direction) - Math.sin(direction)));
+        frontleftinches = cosin_sub;
+        backleftinches = cosin_add;
+        frontrightinches =cosin_add;
+        backrightinches =cosin_sub;
+
+        encoderDrive(speed, backleftinches, frontleftinches, backrightinches, frontrightinches, timeout);
+    }
+
+    public void calculateTargetPosition(double backleftInches, double frontleftinches, double backrightInches, double frontrightinches) {
+        int backleftlastPosition, newfrontleftlastPosition, backrightlastPosition, newfrontrightlastPosition;
+
+        backleftlastPosition = DriveTrain.leftback.getCurrentPosition();
+        newfrontleftlastPosition = DriveTrain.leftfront.getCurrentPosition();
+        backrightlastPosition = DriveTrain.rightback.getCurrentPosition();
+        newfrontrightlastPosition = DriveTrain.rightfront.getCurrentPosition();
+
+        BackLeftTarget = backleftlastPosition + (int) (backleftInches * COUNTS_PER_INCH);
+        FrontLeftTarget = newfrontleftlastPosition + (int) (frontleftinches * COUNTS_PER_INCH);
+        BackRightTarget = backrightlastPosition + (int) (backrightInches * COUNTS_PER_INCH);
+        FrontRightTarget = newfrontrightlastPosition + (int) (frontrightinches * COUNTS_PER_INCH);
+
+        DriveTrain.leftback.setTargetPosition(BackLeftTarget);
+        DriveTrain.leftfront.setTargetPosition(FrontLeftTarget);
+        DriveTrain.rightback.setTargetPosition(BackRightTarget);
+        DriveTrain.rightback.setTargetPosition(FrontRightTarget);
     }
 }

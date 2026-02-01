@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class PID_Controller {
 
-    public final double Kp = 0.03;
+    public final double Kp = 0.045;
     public final double Ki = 0;
     public final double Kd = 0.005;
     public double diference = 0;
@@ -28,9 +28,8 @@ public class PID_Controller {
         timer.reset();
 
         lastDiference = diference;
-        double output = (Kp * diference) + (Ki * integralSum) + (Kd * derivative);
 
-        return output;
+        return (Kp * diference) + (Ki * integralSum) + (Kd * derivative);
     }
 
     public double angleWrap(double angle) {
