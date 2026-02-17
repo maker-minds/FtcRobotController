@@ -133,4 +133,14 @@ public class Revolver {
             target = 2;
         }
     }
+
+    public void moveRightSlowly() {
+        revolver.setTargetPosition(5);
+        revolver.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    public void moveLeftSlowly() {
+        revolver.setTargetPosition(-5);
+        revolver.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
 }

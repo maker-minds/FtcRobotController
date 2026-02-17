@@ -29,6 +29,8 @@ public class OpMode_EAGoose extends OpMode {
     double joystick_y;
     double joystick_side;
     double joystick_turn;
+
+    double prev_y, prev_side, prev_turn;
     double leftPower;
     double rightPower;
     double reference = 0;
@@ -121,9 +123,18 @@ public class OpMode_EAGoose extends OpMode {
     public void updateValues() {
 
         joystick_y = gamepad2.left_stick_y;
-        joystick_side = gamepad2.left_stick_x;
+        joystick_side = gamepad2.right_trigger - gamepad2.left_trigger;
         joystick_turn = gamepad2.right_stick_x;
 
+        if(joystick_y == 0 && Math.abs(prev_y) > 0.2) {
+            joystick_y *= 0.9;
+        }
+        if(joystick_side == 0 && Math.abs(prev_side) > 0.2) {
+            joystick_side *= 0.9;
+        }
+        if(joystick_turn == 0 && Math.abs(prev_turn) > 0.2) {
+            joystick_turn *= 0.9;
+        }
         if(!pid) {
             leftPower = (joystick_y - joystick_turn);
             rightPower = (joystick_y + joystick_turn);
@@ -133,6 +144,10 @@ public class OpMode_EAGoose extends OpMode {
             leftPower = (joystick_y + power);
             rightPower = (joystick_y - power);
         }
+
+        prev_side = joystick_side;
+        prev_turn = joystick_turn;
+        prev_y = joystick_y;
 
     }
 
@@ -210,6 +225,12 @@ public class OpMode_EAGoose extends OpMode {
 
         if (gamepad1.dpad_up) {
             Revolver.revolver.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
+
+        if (gamepad1.left_trigger > 0) {
+            Revolver.moveLeftSlowly();
+        } else if(gamepad1.right_trigger > 0) {
+            Revolver.moveRightSlowly();
         }
 
         if (artifactsToShoot > 0 && !shootingArtifact) {

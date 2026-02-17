@@ -75,7 +75,9 @@ public class Autonomous_EAGoose extends LinearOpMode {
             DriveTrain.setPowerleft(Math.abs(speed));
             DriveTrain.setPowerright(Math.abs(speed));
 
-            while (opModeIsActive() && (runtime.seconds() < timeout) &&
+            runtime.reset();
+
+            while (opModeIsActive()/* && (runtime.seconds() < timeout)*/ &&
                     (DriveTrain.leftfront.isBusy() || DriveTrain.leftback.isBusy() || DriveTrain.rightfront.isBusy() || DriveTrain.rightback.isBusy())) {
                 telemetry.update();
             }
@@ -83,7 +85,7 @@ public class Autonomous_EAGoose extends LinearOpMode {
             DriveTrain.setPowerleft(0);
             DriveTrain.setPowerright(0);
 
-            sleep(150);
+            sleep(0);
         }
     }
 
@@ -100,6 +102,7 @@ public class Autonomous_EAGoose extends LinearOpMode {
     }
 
     public void calculateTargetPosition(double backleftInches, double frontleftinches, double backrightInches, double frontrightinches) {
+
         int backleftlastPosition, newfrontleftlastPosition, backrightlastPosition, newfrontrightlastPosition;
 
         backleftlastPosition = DriveTrain.leftback.getCurrentPosition();
@@ -116,5 +119,10 @@ public class Autonomous_EAGoose extends LinearOpMode {
         DriveTrain.leftfront.setTargetPosition(FrontLeftTarget);
         DriveTrain.rightback.setTargetPosition(BackRightTarget);
         DriveTrain.rightback.setTargetPosition(FrontRightTarget);
+
+        DriveTrain.leftback.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        DriveTrain.leftfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        DriveTrain.rightfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        DriveTrain.rightback.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 }
