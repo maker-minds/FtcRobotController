@@ -123,7 +123,7 @@ public class OpMode_EAGoose extends OpMode {
     public void updateValues() {
 
         joystick_y = gamepad2.left_stick_y;
-        joystick_side = gamepad2.right_trigger - gamepad2.left_trigger;
+        joystick_side = gamepad2.left_trigger - gamepad2.right_trigger;
         joystick_turn = gamepad2.right_stick_x;
 
         if(joystick_y == 0 && Math.abs(prev_y) > 0.2) {

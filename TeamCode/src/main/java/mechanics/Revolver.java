@@ -27,6 +27,8 @@ public class Revolver {
         revolver.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         index = getindexof(revolver.getCurrentPosition());
         target = 2;
+        index = 2;
+        mode = 0;
     }
 
     public void updateRevolver() {
