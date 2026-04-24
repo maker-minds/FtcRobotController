@@ -35,7 +35,7 @@ public class OpMode_EAGoose extends OpMode {
     double rightPower;
     double reference = 0;
 
-    boolean a_pressed, b_pressed, x_pressed, y_pressed, left_pressed;
+    boolean a_pressed, b_pressed, x_pressed, y_pressed, left_pressed, correcting;
     boolean pid, a2_pressed, gone_left, gone_right, push_moved, shootingArtifact = false;
 
 
@@ -83,8 +83,13 @@ public class OpMode_EAGoose extends OpMode {
 
         getButtons();
 
-        Revolver.updateRevolver();
-        Revolver.moveRevolver();
+        if(!correcting) {
+            Revolver.updateRevolver();
+            Revolver.moveRevolver();
+        } else {
+            Revolver.checktarget();
+        }
+        correcting = false;
 
         if (timer > 0) {
             timer--;
@@ -109,12 +114,7 @@ public class OpMode_EAGoose extends OpMode {
             revolverTimeout--;
         }
 
-
-        telemetry.addData("position", "%7d", Revolver.revolver.getCurrentPosition());
-        telemetry.addData("index", "%7d", Revolver.index);
-        telemetry.addData("target", "%7d", Revolver.target);
-        telemetry.addData("mode", "%7d", Revolver.mode);
-        telemetry.addData("pusher", "%7f", pusher.getPosition());
+        telemetry.addData("trigger", "%7f", gamepad1.left_trigger);
         telemetry.update();
 
 
@@ -229,8 +229,10 @@ public class OpMode_EAGoose extends OpMode {
 
         if (gamepad1.left_trigger > 0) {
             Revolver.moveLeftSlowly();
+            correcting = true;
         } else if(gamepad1.right_trigger > 0) {
             Revolver.moveRightSlowly();
+            correcting = true;
         }
 
         if (artifactsToShoot > 0 && !shootingArtifact) {

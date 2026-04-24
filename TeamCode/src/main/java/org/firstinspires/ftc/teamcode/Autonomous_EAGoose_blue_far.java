@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -12,8 +13,8 @@ import mechanics.PID_Controller;
 import mechanics.Revolver;
 
 
-@Autonomous(name = "Autonomous_EAGoose", group = "autonomous")
-public class Autonomous_EAGoose extends LinearOpMode {
+@Autonomous(name = "Autonomous_EAGoose_blue_far", group = "autonomous")
+public class Autonomous_EAGoose_blue_far extends LinearOpMode {
 
     final double COUNTS_PER_MOTOR_REV = 1120;    // eg: TETRIX Motor Encoder
     final double DRIVE_GEAR_REDUCTION = 1.0;     // No External Gearing.
@@ -44,6 +45,7 @@ public class Autonomous_EAGoose extends LinearOpMode {
         DriveTrain.setMode("RUN_USING_ENCODER");
         revolver.init(hardwareMap);
         outtake = hardwareMap.get(DcMotor.class, "Outtake");
+        outtake.setDirection(DcMotor.Direction.REVERSE);
         intake = hardwareMap.get(DcMotor.class, "Intake");
         pusher = hardwareMap.get(Servo.class, "pusher");
         imu.init(hardwareMap);
@@ -52,35 +54,7 @@ public class Autonomous_EAGoose extends LinearOpMode {
         pusher.setPosition(0.5);
         waitForStart();
 
-        outtake.setPower(1);
-        encoderDrive(DRIVE_SPEED, -20, -20, -20, -20, 4);
-        revolver.togglemode();
-        revolver.gotoPosition();
-        while(revolver.revolver.isBusy()) {
-            revolver.checktarget();
-            revolver.updateRevolver();
-        }
-        pusher.setPosition(0.2);
-        sleep(500);
-        pusher.setPosition(0.5);
-        revolver.nextPosition();
-        revolver.gotoPosition();
-        while(revolver.revolver.isBusy()) {
-            revolver.checktarget();
-            revolver.updateRevolver();
-        }
-        pusher.setPosition(0.2);
-        sleep(500);
-        pusher.setPosition(0.5);
-        revolver.nextPosition();
-        revolver.gotoPosition();
-        while(revolver.revolver.isBusy()) {
-            revolver.checktarget();
-            revolver.updateRevolver();
-        }
-        pusher.setPosition(0.2);
-        sleep(500);
-        pusher.setPosition(0.5);
+        encoderDrive(DRIVE_SPEED, 20, 20, 20, 20, 5);
     }
 
 
@@ -104,8 +78,14 @@ public class Autonomous_EAGoose extends LinearOpMode {
             runtime.reset();
 
             while (opModeIsActive() && (runtime.seconds() < timeout) &&
-                    (DriveTrain.leftfront.isBusy() || DriveTrain.leftback.isBusy() || DriveTrain.rightfront.isBusy() || DriveTrain.rightback.isBusy())) {
+                    (DriveTrain.leftfront.isBusy() && DriveTrain.leftback.isBusy() && DriveTrain.rightfront.isBusy() && DriveTrain.rightback.isBusy())) {
                 telemetry.update();
+
+                int diference = Math.abs(DriveTrain.leftfront.getTargetPosition() - DriveTrain.leftfront.getCurrentPosition());
+                if(diference < 50) {
+                    DriveTrain.setPowerleft(map(diference, 1, 50, 0.3, speed));
+                    DriveTrain.setPowerright(map(diference, 1, 50, 0.3, speed));
+                }
             }
 
             DriveTrain.setPowerleft(0);
@@ -150,5 +130,9 @@ public class Autonomous_EAGoose extends LinearOpMode {
         DriveTrain.leftfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         DriveTrain.rightback.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         DriveTrain.rightfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    public int map(int input, int inMin, int inMax, double outMin, double outMax) {
+        return (int) ((input - inMin) * (outMax - outMin) / (inMax - inMin) + outMin);
     }
 }

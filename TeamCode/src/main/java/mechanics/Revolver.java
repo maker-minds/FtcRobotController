@@ -139,10 +139,12 @@ public class Revolver {
     public void moveRightSlowly() {
         revolver.setTargetPosition(5);
         revolver.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        runtoPosition();
     }
 
     public void moveLeftSlowly() {
         revolver.setTargetPosition(-5);
         revolver.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        runtoPosition();
     }
 }
