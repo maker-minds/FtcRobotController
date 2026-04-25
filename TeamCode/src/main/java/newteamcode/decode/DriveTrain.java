@@ -18,7 +18,7 @@ public class DriveTrain {
     public final double TURN_SPEED = 0.8;
 
     public enum modes {
-        RUN_WITHOUT_ENCODDER,
+        RUN_WITHOUT_ENCODER,
         RUN_USING_ENCODER,
         ZERO_POWER_BAHAVIOR
     }
@@ -40,7 +40,7 @@ public class DriveTrain {
     }
 
     public void setMode(modes mode) {
-        if (mode == modes.RUN_WITHOUT_ENCODDER) {
+        if (mode == modes.RUN_WITHOUT_ENCODER) {
             frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
