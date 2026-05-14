@@ -7,10 +7,12 @@ import com.qualcomm.robotcore.util.Range;
 public class DriveTrain {
 
     //---Objects---\\
+
     public DcMotor frontLeft = null;
     public DcMotor frontRight = null;
     public DcMotor backLeft = null;
     public DcMotor backRight = null;
+
 
     //---Constants---\\
 
@@ -20,8 +22,9 @@ public class DriveTrain {
     public enum modes {
         RUN_WITHOUT_ENCODER,
         RUN_USING_ENCODER,
-        ZERO_POWER_BAHAVIOR
+        ZERO_POWER_BEHAVIOUR
     }
+
 
     //---Variables---\\
 
@@ -59,7 +62,7 @@ public class DriveTrain {
             backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             return;
         }
-        if (mode == modes.ZERO_POWER_BAHAVIOR) {
+        if (mode == modes.ZERO_POWER_BEHAVIOUR) {
             frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

@@ -7,14 +7,21 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 public class Opmode_EAGoose_Decode extends OpMode {
 
     //---Objects---\\
+
     private DriveTrain driveTrain = new DriveTrain();
-    private DcMotor intake = null;
+    private Revolver Revolver = new Revolver();
+    private  DcMotor intake = null;
     private DcMotorEx outtake = null;
+
+
+    //---Functions---\\
 
     @Override
     public void init() {
         driveTrain.init(hardwareMap);
         driveTrain.setMode(DriveTrain.modes.RUN_WITHOUT_ENCODER);
+
+        Revolver.init(hardwareMap);
 
         intake = hardwareMap.get(DcMotor.class, "Intake");
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -28,6 +35,7 @@ public class Opmode_EAGoose_Decode extends OpMode {
         //---tasks---\\
 
         intake.setPower(1);
+
 
         //---driving---\\
 
