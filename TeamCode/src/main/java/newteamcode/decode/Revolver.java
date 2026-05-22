@@ -18,7 +18,7 @@ public class Revolver {
     private final byte INTAKE = 0, OUTTAKE = 1;
     //private int[] INTAKE_POSITIONS;
     //private int[] OUTTAKE_POSITIONS;
-    private final int[][] ENCODER_POSITIONS = {{1, 2, 3}, {4, 5, 6}};
+    private final int[][] ENCODER_POSITIONS = {{373, 746, 1019}, {883, 236, 510}};
 
 
     //---Variables---\\
@@ -52,14 +52,13 @@ public class Revolver {
     }
 
     public void calculateTargetPosition(byte direction) {
-        if(inMovement)
+        if (inMovement)
             return;
         else if (direction == 0)
             return;
-        else if(Math.abs(direction) > 1)
+        else if (Math.abs(direction) > 1)
             return;
         else {
-            int newIndex = (index + direction) % 3;
             int indexError = revolverMotor.getCurrentPosition() % ENCODER_POSITIONS[currentState][index];
             if (indexError > 186)
                 indexError -= ENCODER_POSITIONS[currentState][index];
@@ -69,8 +68,21 @@ public class Revolver {
         }
     }
 
-    public void calculateIndex() {
-
+    public int calculateIndex() {
+        if (currentState == INTAKE) {
+            for (int i = 2; i >= 0; i--) {
+                int mod = revolverMotor.getCurrentPosition() % ENCODER_POSITIONS[INTAKE][i];
+                if (mod > 343 || mod < 30)
+                    return i;
+            }
+        } else if (currentState == OUTTAKE) {
+            for (int i = 0; i >= 0; i = (i - 1) % 3) {
+                int mod = revolverMotor.getCurrentPosition() % ENCODER_POSITIONS[INTAKE][i];
+                if (mod > 343 || mod < 30)
+                    return i;
+            }
+        }
+        return 9;
     }
 
 
