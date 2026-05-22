@@ -3,11 +3,14 @@ package newteamcode.decode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import mechanics.MagnetSwitch;
+
 public class Revolver {
 
     //---Objects---\\
 
     public DcMotor revolverMotor = null;
+    public MagnetSwitch magnetSwitch;
 
 
     //---Constants---\\
@@ -23,6 +26,7 @@ public class Revolver {
     private byte currentState = 0;
     private byte index;
     private int targetPosition;
+    private boolean inMovement;
 
 
     //---Functions---\\
@@ -33,6 +37,8 @@ public class Revolver {
         revolverMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         revolverMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         revolverMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        magnetSwitch.init(hardwareMap);
     }
 
     public void positionRevolver() {
@@ -46,10 +52,26 @@ public class Revolver {
     }
 
     public void calculateTargetPosition(byte direction) {
-        if (direction == 0)
+        if(inMovement)
+            return;
+        else if (direction == 0)
+            return;
+        else if(Math.abs(direction) > 1)
             return;
         else {
-            targetPosition = ENCODER_POSITIONS[currentState][(index + direction) % 3];
+            int newIndex = (index + direction) % 3;
+            int indexError = revolverMotor.getCurrentPosition() % ENCODER_POSITIONS[currentState][index];
+            if (indexError > 186)
+                indexError -= ENCODER_POSITIONS[currentState][index];
+            targetPosition = revolverMotor.getCurrentPosition() + 373 * direction - indexError;
+            //targetPosition = ENCODER_POSITIONS[currentState][(index + direction) % 3];
+            inMovement = true;
         }
     }
+
+    public void calculateIndex() {
+
+    }
+
+
 }
