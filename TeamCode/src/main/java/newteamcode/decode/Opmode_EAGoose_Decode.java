@@ -36,6 +36,22 @@ public class Opmode_EAGoose_Decode extends OpMode {
 
         intake.setPower(1);
 
+        byte direction = 0;
+        if(gamepad2.right_bumper || gamepad2.right_stick_x > 0) {
+            direction = Revolver.RIGHT;
+        } else if (gamepad2.left_bumper || gamepad2.right_stick_x < 0) {
+            direction = Revolver.LEFT;
+        } else if(gamepad2.b) {
+            direction = Revolver.STOP;
+        } else if (gamepad2.a) {
+            direction = Revolver.AUTO_ALIGN;
+        } else if(gamepad2.left_stick_x > 0) {
+            direction = Revolver.MANUAL_RIGHT;
+        } else if(gamepad2.left_stick_x < 0) {
+            direction = Revolver.MANUAL_LEFT;
+        }
+        Revolver.positionRevolver(direction);
+
 
         //---driving---\\
 

@@ -1,37 +1,39 @@
 package newteamcode.decode;
 
+import androidx.annotation.NonNull;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import mechanics.MagnetSwitch;
+import com.qualcomm.robotcore.util.Range;
 
 public class Revolver {
 
     //---Objects---\\
 
     public DcMotor revolverMotor = null;
-    public MagnetSwitch magnetSwitch;
+    private MagnetSwitch magnetSwitch = new MagnetSwitch();
 
 
     //---Constants---\\
 
+    public final byte LEFT = -1, RIGHT = 1, MANUAL_LEFT = -2, MANUAL_RIGHT = 2, STOP = 4, AUTO_ALIGN = 3;
     private final byte INTAKE = 0, OUTTAKE = 1;
-    //private int[] INTAKE_POSITIONS;
-    //private int[] OUTTAKE_POSITIONS;
-    private final int[][] ENCODER_POSITIONS = {{373, 746, 1019}, {883, 236, 510}};
+    private final int[][] ENCODER_POSITIONS = {{373, 747, 1019}, {236, 510, 883}};
 
 
     //---Variables---\\
 
-    private byte currentState = 0;
-    private byte index;
+    private byte currentState = INTAKE;
+    private byte lastState = OUTTAKE;
+    private byte index; // index: der index auf dem wir sind
+    private byte indexSetpoint; //index sollwert: der index auf dem wir sein sollten
     private int targetPosition;
-    private boolean inMovement;
+    private boolean emergency = false, emergencyCopie = emergency;
 
 
     //---Functions---\\
 
-    public void init(HardwareMap hardwareMap) {
+    public void init(@NonNull HardwareMap hardwareMap) {
         revolverMotor = hardwareMap.get(DcMotor.class, "revolverMotor");
         revolverMotor.setDirection(DcMotor.Direction.REVERSE);
         revolverMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -41,49 +43,68 @@ public class Revolver {
         magnetSwitch.init(hardwareMap);
     }
 
-    public void positionRevolver() {
-        if (!revolverMotor.isBusy()) {
-            revolverMotor.setPower(0);
+    public void positionRevolver(byte direction) {
+        emergency = false;
+        if(Math.abs(direction) > 1)
+            emergency = true;
+        if(emergency != emergencyCopie) {
+            revolverMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            revolverMotor.setTargetPosition(revolverMotor.getCurrentPosition());
+            if(!emergency)
+                indexSetpoint = calculateIndex();
+        }
+        emergencyCopie = emergency;
+        if (revolverMotor.isBusy()) {
             return;
         }
+        revolverMotor.setPower(0);
+        //index = calculateIndex();
+        calculateTargetPosition(direction);
         revolverMotor.setTargetPosition(targetPosition);
         revolverMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         revolverMotor.setPower(1);
     }
 
-    public void calculateTargetPosition(byte direction) {
-        if (inMovement)
+    private void calculateTargetPosition(byte direction) {
+        if (direction == 0 && lastState == currentState)
             return;
-        else if (direction == 0)
+        else if (Math.abs(direction) > 1) {
+            if (Math.abs(direction) == 2)
+                targetPosition = revolverMotor.getCurrentPosition() + 5 * direction;
+            else if (Math.abs(direction) == 3)
+                realign(direction);
             return;
-        else if (Math.abs(direction) > 1)
-            return;
-        else {
-            int indexError = revolverMotor.getCurrentPosition() % ENCODER_POSITIONS[currentState][index];
-            if (indexError > 186)
-                indexError -= ENCODER_POSITIONS[currentState][index];
-            targetPosition = revolverMotor.getCurrentPosition() + 373 * direction - indexError;
-            //targetPosition = ENCODER_POSITIONS[currentState][(index + direction) % 3];
-            inMovement = true;
         }
+        int positionError = revolverMotor.getCurrentPosition() % ENCODER_POSITIONS[currentState][indexSetpoint];
+        if (positionError > 186)
+            positionError -= ENCODER_POSITIONS[currentState][indexSetpoint];
+        targetPosition = revolverMotor.getCurrentPosition() + 373 * direction - positionError;
+        indexSetpoint += direction;
+        //targetPosition = ENCODER_POSITIONS[currentState][(index + direction) % 3];
+        lastState = currentState;
     }
 
-    public int calculateIndex() {
+    private byte calculateIndex() {
         if (currentState == INTAKE) {
             for (int i = 2; i >= 0; i--) {
                 int mod = revolverMotor.getCurrentPosition() % ENCODER_POSITIONS[INTAKE][i];
-                if (mod > 343 || mod < 30)
-                    return i;
+                if (mod > (ENCODER_POSITIONS[INTAKE][i] - 30) || mod < 30)
+                    return (byte) i;
             }
         } else if (currentState == OUTTAKE) {
-            for (int i = 0; i >= 0; i = (i - 1) % 3) {
-                int mod = revolverMotor.getCurrentPosition() % ENCODER_POSITIONS[INTAKE][i];
-                if (mod > 343 || mod < 30)
-                    return i;
+            for (int i = 2; i >= 0; i--) {
+                int mod = revolverMotor.getCurrentPosition() % ENCODER_POSITIONS[OUTTAKE][i];
+                if (mod > (ENCODER_POSITIONS[OUTTAKE][i] - 30) || mod < 30)
+                    return (byte) i;
             }
         }
         return 9;
     }
 
-
+    private void realign(byte direction) {
+        revolverMotor.setPower(Range.clip(direction, -0.6, 0.6));
+        while (!magnetSwitch.isNearMagnet()) {
+        }
+        revolverMotor.setPower(0);
+    }
 }

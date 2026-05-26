@@ -1,4 +1,4 @@
-package mechanics;
+package newteamcode.decode;
 
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -16,7 +16,7 @@ public class MagnetSwitch {
         channel.setMode(DigitalChannel.Mode.INPUT);
     }
 
-    public boolean magnet() {
+    public boolean isNearMagnet() {
         return !channel.getState();
     }
 }
