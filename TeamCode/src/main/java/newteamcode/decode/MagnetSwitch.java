@@ -12,7 +12,7 @@ public class MagnetSwitch {
     //---Functions---\\
 
     public void init(HardwareMap hardwareMap) {
-        channel = hardwareMap.get(DigitalChannel.class, "MagnetSwitch");
+        channel = hardwareMap.get(DigitalChannel.class, "magnetSwitch");
         channel.setMode(DigitalChannel.Mode.INPUT);
     }
 
