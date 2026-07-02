@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+@TeleOp(name = "OpMode_EAGoose_DECODE", group = "teleop")
 public class OpMode_EAGoose_Decode extends OpMode {
 
     //---Objects---\\
