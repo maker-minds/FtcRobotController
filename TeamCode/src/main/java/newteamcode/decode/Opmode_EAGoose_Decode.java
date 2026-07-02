@@ -1,6 +1,7 @@
 package newteamcode.decode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
@@ -23,7 +24,7 @@ public class OpMode_EAGoose_Decode extends OpMode {
 
         revolver.init(hardwareMap);
 
-        intake = hardwareMap.get(DcMotor.class, "Intake");
+        intake = hardwareMap.get(DcMotor.class, "intake");
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intake.setDirection(DcMotor.Direction.REVERSE);
 
