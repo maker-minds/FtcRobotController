@@ -1,17 +1,15 @@
 package newteamcode.decode;
 
 import androidx.annotation.NonNull;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.Range;
 
 public class Revolver {
 
     //---Objects---\\
 
     public DcMotor revolverMotor = null;
-    private MagnetSwitch magnetSwitch = new MagnetSwitch();
+    private final MagnetSwitch magnetSwitch = new MagnetSwitch();
 
 
     //---Constants---\\
@@ -25,10 +23,9 @@ public class Revolver {
 
     private byte currentState = INTAKE;
     private byte lastState = OUTTAKE;
-    private byte index; // index: der index auf dem wir sind
     private byte indexSetpoint; //index sollwert: der index auf dem wir sein sollten
     private int targetPosition;
-    private boolean emergency = false, emergencyCopie = emergency;
+    private boolean emergency = false, emergencyCopy = emergency;
 
 
     //---Functions---\\
@@ -44,16 +41,14 @@ public class Revolver {
     }
 
     public void positionRevolver(byte direction) {
-        emergency = false;
-        if(Math.abs(direction) > 1)
-            emergency = true;
-        if(emergency != emergencyCopie) {
+        emergency = Math.abs(direction) > 1;
+        if(emergency != emergencyCopy) {
             revolverMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             revolverMotor.setTargetPosition(revolverMotor.getCurrentPosition());
             if(!emergency)
                 indexSetpoint = calculateIndex();
         }
-        emergencyCopie = emergency;
+        emergencyCopy = emergency;
         if (revolverMotor.isBusy()) {
             return;
         }
@@ -102,7 +97,7 @@ public class Revolver {
     }
 
     private void realign(byte direction) {
-        revolverMotor.setPower(Range.clip(direction, -0.6, 0.6));
+        revolverMotor.setPower(Math.min(Math.abs(direction), 0.6));
         while (!magnetSwitch.isNearMagnet()) {
         }
         revolverMotor.setPower(0);
